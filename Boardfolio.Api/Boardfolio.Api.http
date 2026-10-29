@@ -1,0 +1,80 @@
+@host = https://localhost:7226
+@token = paste-access-token-from-login
+@buildId = paste-build-id
+
+### Register a development account
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "builder@example.test",
+  "password": "Local-Development42!"
+}
+
+### Log in for a mobile bearer token; copy accessToken into token above
+POST {{host}}/api/auth/login?useCookies=false
+Content-Type: application/json
+
+{
+  "email": "builder@example.test",
+  "password": "Local-Development42!"
+}
+
+### Check the public catalog version before refreshing the device cache
+GET {{host}}/api/switches/version
+
+### Public catalog page (omit search to download the complete catalog)
+GET {{host}}/api/switches?page=1&pageSize=200
+
+### Filtered catalog page
+GET {{host}}/api/switches?search=MX&page=1&pageSize=200
+
+### Create a private build
+POST {{host}}/api/builds
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Weekend Build",
+  "keyboardModel": "Neo Ergo",
+  "notes": "My first saved build."
+}
+
+### Get this account's builds
+GET {{host}}/api/builds?page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### Add catalog switches
+POST {{host}}/api/builds/{{buildId}}/components
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "Switches",
+  "name": "Cherry MX Red",
+  "quantity": 70,
+  "keyboardSwitchId": "675a1063-7bbd-4559-b452-0d56f8867bc1"
+}
+
+### Set private costs; the initial breakdown is not counted twice
+PUT {{host}}/api/builds/{{buildId}}/costs
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "currencyCode": "USD",
+  "trackingMethod": "OverallAmount",
+  "initialAmount": 200.00,
+  "entries": [
+    { "description": "Switches included in original build", "amount": 35.00, "stage": "InitialBuild" },
+    { "description": "Replacement cable", "amount": 15.00, "stage": "LaterSpending" }
+  ]
+}
+
+### Export the account's private backup
+GET {{host}}/api/me/export
+Authorization: Bearer {{token}}
+
+### Currency-separated lifetime spending totals
+GET {{host}}/api/me/cost-totals
+Authorization: Bearer {{token}}

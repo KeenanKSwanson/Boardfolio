@@ -1,0 +1,8 @@
+**/bin/
+**/obj/
+**/.vs/
+**/*.csproj.user
+**/App_Data/
+**/TestResults/
+node_modules/
+artifacts/
